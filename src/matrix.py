@@ -197,7 +197,7 @@ class Matrix(Sequence[Vector[T]]):
                 return a * d - b * c  # type: ignore
             case (i, j) if i == j:
                 return sum(
-                    (-1) ** i * x * self.minor(0, i).det()
+                    (-1)**i * x * self.minor(0, i).det()
                     for i, x in enumerate(self[0])
                 )
         raise ValueError("Matrix does not have determinant.")
@@ -241,21 +241,19 @@ class Matrix(Sequence[Vector[T]]):
         ...
 
 
-m1 = Matrix(
-    [
-        [1, 2, 4],
-        [3, 4, 1],
-        [6, 8, 9],
-    ],
-)
-
-
-m2 = Matrix(
-    [
-        [2, 0, 9],
-        [1, 2, 8],
-        [6, 6, 3],
-    ],
-)
-
-print(m1 @ m2)
+if __name__ == "__main__":
+    m1 = Matrix(
+        [
+            [1, 2, 4],
+            [3, 4, 1],
+            [6, 8, 9],
+        ],
+    )
+    m2 = Matrix(
+        [
+            [2, 0, 9],
+            [1, 2, 8],
+            [6, 6, 3],
+        ],
+    )
+    print(m1 @ m2)
