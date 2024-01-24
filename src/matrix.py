@@ -6,10 +6,8 @@ from copy import deepcopy
 from fractions import Fraction
 from functools import reduce
 from itertools import chain, product, repeat
-from operator import matmul
-from typing import Iterable, Iterator, Sequence, overload
-
-from typing_extensions import Self
+from operator import add, matmul, sub
+from typing import Iterable, Iterator, Self, Sequence, overload
 
 from vector import T, Vector
 
@@ -36,7 +34,7 @@ class Matrix(Sequence[Vector[T]]):
 
     @classmethod
     def fill(cls, value: T, rows: int, cols: int) -> Self:
-        return cls([[value for _ in range(cols)] for _ in range(rows)])
+        return cls(((value for _ in range(cols)) for _ in range(rows)))
 
     @overload
     @classmethod
@@ -95,9 +93,23 @@ class Matrix(Sequence[Vector[T]]):
                 return m
         raise ValueError(f"{type(self).__name__} shapes are incompatible.")
 
-    __mul__ = __matmul__
+    def __mul__(self, n: T) -> Self:
+        return type(self)([[n * x for x in r] for r in self])
+
     __rmatmul__ = __matmul__
     __rmul__ = __mul__
+
+    def __add__(self, other: Self) -> Self:
+        return type(self)(list(map(add, self, other)))
+
+    def __sub__(self, other: Self) -> Self:
+        return type(self)(list(map(sub, self, other)))
+
+    __radd__ = __add__
+    __rsub__ = __sub__
+
+    def __truediv__(self, n: T) -> Self:
+        return type(self)([[Fraction(x, n) for x in r] for r in self])  # type: ignore
 
     def enumerated(self) -> Iterator[tuple[tuple[int, int], T]]:
         flat_values = chain.from_iterable(self)
@@ -107,7 +119,7 @@ class Matrix(Sequence[Vector[T]]):
         if exp == -1:
             return self.inverse()
         if exp < -1:
-            return pow(self.inverse(), abs(exp))
+            return pow(self.inverse(), abs(exp))  # type: ignore
         return reduce(matmul, repeat(self, exp))
 
     def indices(self) -> Iterator[tuple[int, int]]:
@@ -197,7 +209,7 @@ class Matrix(Sequence[Vector[T]]):
                 return a * d - b * c  # type: ignore
             case (i, j) if i == j:
                 return sum(
-                    (-1)**i * x * self.minor(0, i).det()
+                    (-1) ** i * x * self.minor(0, i).det()
                     for i, x in enumerate(self[0])
                 )
         raise ValueError("Matrix does not have determinant.")
@@ -242,18 +254,20 @@ class Matrix(Sequence[Vector[T]]):
 
 
 if __name__ == "__main__":
-    m1 = Matrix(
+    B = Matrix(
         [
-            [1, 2, 4],
-            [3, 4, 1],
-            [6, 8, 9],
-        ],
+            [-5, 8, 4],
+            [-4, 9, -2],
+            [10, 0, -8],
+            [-1, -2, 0],
+        ]
     )
-    m2 = Matrix(
+    C = Matrix(
         [
-            [2, 0, 9],
-            [1, 2, 8],
-            [6, 6, 3],
-        ],
+            [1, 3, -1],
+            [-9, 3, -9],
+            [-2, 7, 7],
+            [8, -10, 2],
+        ]
     )
-    print(m1 @ m2)
+    print(B + C)
