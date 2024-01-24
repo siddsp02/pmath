@@ -4,9 +4,8 @@ import math
 from fractions import Fraction
 from numbers import Number
 from operator import add, floordiv, mul, sub
-from typing import Callable, Iterable, Sequence, TypeVar, overload
+from typing import Callable, Iterable, Self, Sequence, TypeVar, overload
 
-from typing_extensions import Self
 
 Numeric = int | float | Fraction
 
